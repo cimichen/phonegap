@@ -47,30 +47,35 @@
 
         <!-- 这里是页面内容区 -->
         <!-- content应该拥有"pull-to-refresh-content"类,表示启用下拉刷新 -->
-        <div class="content pull-to-refresh-content" data-ptr-distance="55">
+        <div class="content pull-to-refresh-content infinite-scroll infinite-scroll-bottom" data-ptr-distance="55">
             <!-- 默认的下拉刷新层 -->
             <div class="pull-to-refresh-layer">
                 <div class="preloader"></div>
                 <div class="pull-to-refresh-arrow"></div>
             </div>
             <!-- 下面是正文 -->
-            <div class="card-container">
-                <div class="card">
-                    <div class="card-header">card</div>
-                    <div class="card-content">
-                        <div class="card-content-inner">
-                            这里是第1个card，下拉刷新会出现第2个card。
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!--<div class="card-container">-->
+                <!--<div class="card">-->
+                    <!--<div class="card-header">card</div>-->
+                    <!--<div class="card-content">-->
+                        <!--<div class="card-content-inner">-->
+                            <!--这里是第1个card，下拉刷新会出现第2个card。-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="list-block media-list recommend_list">
+            <ul id="list_news_ul">
+
+            </ul>
         </div>
 
-        <!--<div class="list-block media-list recommend_list">-->
-            <!--<ul id="list_news_ul">-->
-
-            <!--</ul>-->
-        <!--</div>-->
+        <!-- 加载提示符 -->
+        <div class="infinite-scroll-preloader">
+            <div class="preloader"></div>
+        </div>
 
     </div>
 
@@ -103,10 +108,11 @@ $(function() {
     });
 
     refreshLoad();
+    loadLast();
 
 });
 
-    function initNews($news){
+    function initNews($news, $action){
         var ulEle = $('#list_news_ul');
         for (var i = 0; i < $news.length; i++) {
 
@@ -123,35 +129,97 @@ $(function() {
                     '</div> ' +
                     '</div> ' +
                     '</div> ' +
-                    '</li>'
-            ulEle.append(news_str);
+                    '</li>';
+
+            if ($action == "pre") {
+                ulEle.prepend(news_str);
+            } else {
+                ulEle.append(news_str);
+            }
         }
     }
 
 function refreshLoad () {
     console.log("下拉啊");
+
     // 添加'refresh'监听器
     $(document).on('refresh', '.pull-to-refresh-content',function(e) {
-        console.log("下拉啊1111");
-        // 模拟2s的加载过程
-        setTimeout(function() {
-            var cardNumber = $(e.target).find('.card').length + 1;
-            var cardHTML = '<div class="card">' +
-                    '<div class="card-header">card'+cardNumber+'</div>' +
-                    '<div class="card-content">' +
-                    '<div class="card-content-inner">' +
-                    '这里是第' + cardNumber + '个card，下拉刷新会出现第' + (cardNumber + 1) + '个card。' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>';
+        console.log("下拉开始啦");
 
-            $(e.target).find('.card-container').prepend(cardHTML);
-            // 加载完毕需要重置
-            $.pullToRefreshDone('.pull-to-refresh-content');
-        }, 2000);
+        //先去请求最新的数据，要求数据按时间正序排序，越新的越靠后。
+        $.ajax({
+            type:"get",//请求方式
+            url:"dist/data/news.json",//发送请求地址
+//        data:{//发送给数据库的数据
+//            username:$("#username").val(),
+//            content:$("#content").val()
+//        },
+            async: false,
+            //请求成功后的回调函数有两个参数
+            success:function(data,textStatus){
+                // 模拟2s的加载过程
+                setTimeout(function() {
+                    initNews(data.data.news, "pre");
+                    // 加载完毕需要重置
+                    $.pullToRefreshDone('.pull-to-refresh-content');
+                }, 2000);
+            }
+        });
     });
 }
+    //最后的一条数据的id（传递最后的一条id，后台根据这个id查询这个id之后的数据信息，解决脏数据问题）
+    var lastIndex = "";
+    function loadLast() {
+        console.log("无限加载不。。。");
+        //无限滚动
 
+            var loading = false;
+            // 每次加载添加多少条目
+            var itemsPerLoad = 20;
+
+
+
+            $(document).on('infinite', '.infinite-scroll-bottom', function() {
+                console.log("无限加载开始啦、、、");
+                // 如果正在加载，则退出
+                if (loading) return;
+                // 设置flag
+                loading = true;
+
+                $.ajax({
+                    type:"get",//请求方式
+                    url:"dist/data/news.json",//发送请求地址
+        //        data:{//发送给数据库的数据
+        //            username:$("#username").val(),
+        //            content:$("#content").val()
+        //        },
+                    async: false,
+                    //请求成功后的回调函数有两个参数
+                    success:function(data,textStatus){
+                        // 模拟1s的加载过程
+                        setTimeout(function() {
+
+                            initNews(data.data.news);
+
+                            //lastIndex是数据的最后一个的id
+                            lastIndex = "";
+                            $.refreshScroller();
+                        }, 1000);
+                    }
+                });
+            });
+
+    }
+
+function addItems(number, lastIndex) {
+    // 生成新条目的HTML
+    var html = '';
+    for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
+        html += '<li class="item-content"><div class="item-inner"><div class="item-title">新条目</div></div></li>';
+    }
+    // 添加新条目
+    $('.infinite-scroll .list-container').append(html);
+}
 
 </script>
 </body>
