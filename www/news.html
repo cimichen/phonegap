@@ -148,7 +148,7 @@ function refreshLoad () {
         //先去请求最新的数据，要求数据按时间正序排序，越新的越靠后。
         $.ajax({
             type:"get",//请求方式
-            url:"dist/data/news.json",//发送请求地址
+            url:"http://117.132.8.93:8078/survey/h5/news.json",//发送请求地址
 //        data:{//发送给数据库的数据
 //            username:$("#username").val(),
 //            content:$("#content").val()
@@ -186,7 +186,7 @@ function refreshLoad () {
 
             $.ajax({
                 type: "get",//请求方式
-                url: "dist/data/news.json",//发送请求地址
+                url: "http://117.132.8.93:8078/survey/h5/news.json",//发送请求地址
                 //        data:{//发送给数据库的数据
                 //            username:$("#username").val(),
                 //            content:$("#content").val()
