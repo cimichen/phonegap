@@ -22,7 +22,7 @@
     <div class="page">
         <!-- 标题栏 -->
         <header class="bar bar-nav add_bar">
-            <a href="news.html" class="icon icon-left pull-left"></a>
+            <a href="javascript:void(0)" onclick="goNewsList()" class="icon icon-left pull-left"></a>
             <h1 class="title">资讯</h1>
         </header>
 
@@ -31,54 +31,61 @@
         <!-- 这里是页面内容区 -->
         <div class="content" style="background-color: #ffffff;">
             <div class="news_details_t">
-                <div class="news_deta_title">三一重工即将发售新品</div>
-                <div class="news_deta_date">05-02 18:24<span><img src="img/viewed.png">2413</span></div>
+                <div class="news_deta_title" id="title_div"></div>
+                <div class="news_deta_date" id="date_div"></div>
             </div>
-            <div class="news_details_cont">
-                <p>三一重工的母公司三一集团于1989年在湖南涟源正式创立，公司名称源于创业初期提出的“创建一流企业，造就一流人才，做出一流贡献”的企业愿景。多年来，三一以“品质改变世界”为使命，致力于为中华民族贡献一个世界级品牌。</p>
-                <div class="home_img"><img src="img/picture2.png"></div>
-                <p>三一重工的母公司三一集团于1989年在湖南涟源正式创立，公司名称源于创业初期提出的“创建一流企业，造就一流人才，做出一流贡献”的企业愿景。多年来，三一以“品质改变世界”为使命，致力于为中华民族贡献一个世界级品牌。</p>
-                <div class="home_img"><img src="img/picture2.png"></div>
-                <p>三一重工的母公司三一集团于1989年在湖南涟源正式创立，公司名称源于创业初期提出的“创建一流企业，造就一流人才，做出一流贡献”的企业愿景。多年来，三一以“品质改变世界”为使命，致力于为中华民族贡献一个世界级品牌。</p>
-                <div class="home_img"><img src="img/picture2.png"></div>
-                <p>三一重工的母公司三一集团于1989年在湖南涟源正式创立，公司名称源于创业初期提出的“创建一流企业，造就一流人才，做出一流贡献”的企业愿景。多年来，三一以“品质改变世界”为使命，致力于为中华民族贡献一个世界级品牌。</p>
-            </div>
+            <div class="news_details_cont" id="detail_div">
 
+            </div>
         </div>
     </div>
-
-
 </div>
 
 <script type='text/javascript' src="http://g.alicdn.com/sj/lib/zepto/zepto.min.js" charset='utf-8'></script>
 <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.6.2/js/sm.min.js' charset='utf-8'></script>
 <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.6.2/js/sm-extend.min.js' charset='utf-8'></script>
-<script src="dist/js/sm-city-picker.js"></script>
 <script src="assets/js/config.js"></script>
-<script src="assets/js/swiper.js"></script>
+<script src="dist/main.js"></script>
 <script>
-//    var swiper = new Swiper('.swiper-container', {
-//        pagination: '.swiper-pagination',
-//        nextButton: '.swiper-button-next',
-//        prevButton: '.swiper-button-prev',
-//        paginationClickable: true,
-//        spaceBetween: 30,
-//        centeredSlides: true,
-//        autoplay: 2500,
-//        autoplayDisableOnInteraction: false
-//    });
-$(function() {
-    var swiper = new Swiper('.swiper-container', {
-        pagination: '.swiper-pagination',
-        nextButton: '.swiper-button-next',
-        prevButton: '.swiper-button-prev',
-        paginationClickable: true,
-        centeredSlides: true,
-        autoplay: 2500,
-        autoplayDisableOnInteraction: false,
-        loop : true
+
+    $(function() {
+
+        var $newsId = getParams("newsId");
+        console.log("传过来的newsId:" + $newsId);
+        $.ajax({
+            type:"get",//请求方式
+            url:"dist/data/news_detail.json",//发送请求地址
+//        data:{//发送给数据库的数据
+//            username:$("#username").val(),
+//            content:$("#content").val()
+//        },
+            async: false,
+            //请求成功后的回调函数有两个参数
+            success:function(data,textStatus){
+                console.log("资讯详情:" + data.data);
+                initNewsDetail(data.data);
+            }
+        });
+
+        $.init();
     });
-});
+
+    /**
+     * 初始化资讯详情
+     */
+    function initNewsDetail($data) {
+        $('#title_div').text($data.title);
+        $('#date_div').html($data.created_time + '<span><img src="img/viewed.png">'+ $data.view_num+'</span>');
+        $('#detail_div').html($data.html);
+    }
+
+    /**
+     * 进入资讯列表页面
+     * @param $newsId
+     */
+    function  goNewsList() {
+        window.location.href = "news.html";
+    }
 </script>
 </body>
 </html>

@@ -66,19 +66,20 @@
             <!--</div>-->
         <!--</div>-->
 
-            <div class="list-block media-list recommend_list">
-                <ul id="list_news_ul">
+        <div class="list-block media-list recommend_list">
+            <ul id="list_news_ul">
 
-                </ul>
-            </div>
-
-            <!-- 加载提示符 -->
-            <div class="infinite-scroll-preloader">
-                <div class="preloader"></div>
-            </div>
+            </ul>
         </div>
+
+        <!-- 加载提示符 -->
+        <div class="infinite-scroll-preloader">
+            <div class="preloader"></div>
+        </div>
+
     </div>
 </div>
+
 <script type='text/javascript' src="http://g.alicdn.com/sj/lib/zepto/zepto.min.js" charset='utf-8'></script>
 <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.6.2/js/sm.min.js' charset='utf-8'></script>
 <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.6.2/js/sm-extend.min.js' charset='utf-8'></script>
@@ -88,6 +89,7 @@
 <script>
 
 $(function() {
+    $.init();
 
     $.ajax({
         type:"get",//请求方式
@@ -105,14 +107,14 @@ $(function() {
 
     refreshLoad();
     loadLast();
-    $.init();
+
 });
 
     function initNews($news, $action){
         var ulEle = $('#list_news_ul');
         for (var i = 0; i < $news.length; i++) {
 
-            var news_str = '<li onclick="goDetail('+ $news[i].news_id +')">' +
+            var news_str = '<li> ' +
                     '<div class="item-content recommend_list_cont"> ' +
                     '<div class="item-media recommend_list_img home_img"><img src="'+ $news[i].cover_img_id+'"></div> ' +
                     '<div class="item-inner" style="margin-left:2%;padding-right: 0.3rem"> ' +
@@ -125,7 +127,7 @@ $(function() {
                     '</div> ' +
                     '</div> ' +
                     '</div> ' +
-                    '</a></li>';
+                    '</li>';
 
             if ($action == "pre") {
                 ulEle.prepend(news_str);
@@ -172,60 +174,53 @@ function refreshLoad () {
         console.log("无限加载不。。。");
         //无限滚动
 
-        var loading = false;
-        // 每次加载添加多少条目
-        var itemsPerLoad = 20;
+            var loading = false;
+            // 每次加载添加多少条目
+            var itemsPerLoad = 20;
 
 
-        $(document).on('infinite', '.infinite-scroll-bottom', function () {
-            console.log("无限加载开始啦、、、");
-            // 如果正在加载，则退出
-            if (loading) return;
-            // 设置flag
-            loading = true;
 
-            $.ajax({
-                type: "get",//请求方式
-                url: "dist/data/news.json",//发送请求地址
-                //        data:{//发送给数据库的数据
-                //            username:$("#username").val(),
-                //            content:$("#content").val()
-                //        },
-                async: false,
-                //请求成功后的回调函数有两个参数
-                success: function (data, textStatus) {
-                    loading = false;
-                    // 模拟1s的加载过程
-                    setTimeout(function () {
+            $(document).on('infinite', '.infinite-scroll-bottom', function() {
+                console.log("无限加载开始啦、、、");
+                // 如果正在加载，则退出
+                if (loading) return;
+                // 设置flag
+                loading = true;
 
-                        initNews(data.data.news);
+                $.ajax({
+                    type:"get",//请求方式
+                    url:"dist/data/news.json",//发送请求地址
+        //        data:{//发送给数据库的数据
+        //            username:$("#username").val(),
+        //            content:$("#content").val()
+        //        },
+                    async: false,
+                    //请求成功后的回调函数有两个参数
+                    success:function(data,textStatus){
+                        // 模拟1s的加载过程
+                        setTimeout(function() {
 
-                        //lastIndex是数据的最后一个的id
-                        lastIndex = "";
-                        $.refreshScroller();
-                    }, 1000);
-                }
+                            initNews(data.data.news);
+
+                            //lastIndex是数据的最后一个的id
+                            lastIndex = "";
+                            $.refreshScroller();
+                        }, 1000);
+                    }
+                });
             });
-        });
+
     }
 
-    function addItems(number, lastIndex) {
-        // 生成新条目的HTML
-        var html = '';
-        for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
-            html += '<li class="item-content"><div class="item-inner"><div class="item-title">新条目</div></div></li>';
-        }
-        // 添加新条目
-        $('.infinite-scroll .list-container').append(html);
+function addItems(number, lastIndex) {
+    // 生成新条目的HTML
+    var html = '';
+    for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
+        html += '<li class="item-content"><div class="item-inner"><div class="item-title">新条目</div></div></li>';
     }
-
-    /**
-     * 进入资讯详细页面
-     * @param $newsId
-     */
-    function goDetail ($newsId) {
-        window.location.href = "news_details.html?newsId=" + $newsId;
-    }
+    // 添加新条目
+    $('.infinite-scroll .list-container').append(html);
+}
 
 </script>
 </body>
